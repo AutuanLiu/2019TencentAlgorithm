@@ -1,6 +1,22 @@
 import modin as pd
+import time
 
 
-def join_df(left, right, left_on, how='inner', right_on=None, suffix='_y'):
-    if right_on is None: right_on = left_on
-    return pd.merge(left, right, how=how, left_on=left_on, right_on=right_on, suffixes=("", suffix))
+def isVaildDate(date_str):
+        try:
+            if ":" in date_str:
+                time.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+            else:
+                time.strptime(date_str, "%Y-%m-%d")
+            return True
+        except:
+            return False 
+
+
+def is_more(df, field):
+    """判断是否存在多值"""
+    ret, l = [], len(df)
+    for i in range(l):
+        if len(str(df.loc[i, field]).split(',')) > 1:
+            ret.append(i)
+    return ret
