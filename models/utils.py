@@ -1,25 +1,11 @@
-import modin.pandas as pd
-import time
+import numpy as np
+import pandas as pd
+import re
 
 
-def isVaildDate(date_str):
-    try:
-        if ":" in date_str:
-            time.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-        else:
-            time.strptime(date_str, "%Y-%m-%d")
-        return True
-    except:
-        return False
-
-
-def is_more(df, field):
-    """判断是否存在多值"""
-    ret, l = [], len(df)
-    for i in range(l):
-        if len(str(df.loc[i, field]).split(',')) > 1:
-            ret.append(i)
-    return ret
+def join_df(left, right, left_on, right_on=None, suffix='_y'):
+    if right_on is None: right_on = left_on
+    return left.merge(right, how='left', left_on=left_on, right_on=right_on, suffixes=("", suffix))
 
 
 def add_datepart(df, fldname, drop=True, time=False):
@@ -41,16 +27,3 @@ def add_datepart(df, fldname, drop=True, time=False):
         df[targ_pre + n] = getattr(fld.dt, n.lower())
     df[targ_pre + 'Elapsed'] = fld.astype(np.int64) // 10**9
     if drop: df.drop(fldname, axis=1, inplace=True)
-
-
-def invalid_date(df, field):
-    ret, l = [], len(df)
-    df[field] = pd.to_datetime(df[field], unit='s')  # 转为日期
-    df.reset_index(drop=True, inplace=True)  # 为了正常访问，重建索引
-    for i in range(l):
-        if not isVaildDate(str(df.loc[i, field])):
-            ret.append(i)
-    # 删除行
-    new_df = df.drop(ret, axis=0)
-    return new_df
-
