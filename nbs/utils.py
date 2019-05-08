@@ -1,5 +1,5 @@
 import modin.pandas as pd
-import time
+import time, os, re
 
 
 def isVaildDate(date_str):
@@ -54,3 +54,8 @@ def invalid_date(df, field):
     new_df = df.drop(ret, axis=0)
     return new_df
 
+def purge_pat_files(dir, pattern):
+    for f in os.listdir(dir):
+        if re.search(pattern, f):
+            os.remove(os.path.join(dir, f))
+            
