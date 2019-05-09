@@ -77,9 +77,9 @@ def read_files(dir, pattern):
     fx = os.listdir(dir)
     for f, _ in zip(fx, trange(len(fx))):
         if re.search(pattern, f):
-            data = pd.read_csv(f'../data/{f}', sep='\t', header=None, names=col_names1)
+            data = pd.read_csv(f'../data/{f}', header=None, names=col_names1, encoding='utf-8')
             data.drop_duplicates(subset=None, keep='first', inplace=True)
-            data.to_csv(f'../data/{f}', mode='w', index=None, encoding='utf-8')
+            data.to_csv(f'../data/{f}', index=None, encoding='utf-8')
             
 read_files('../data', r'^[^_]+_log.csv$')
 print('step 8')
