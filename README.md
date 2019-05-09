@@ -24,7 +24,7 @@ tree .
 │   └── pro_data.ipynb
 ├── README.md
 ├── requirements.txt
-└── test_A -> data 的软连接路径
+└── test_A -> data 的软连接路径(快捷方式)
 
 ```
 
