@@ -109,4 +109,4 @@ venv.bak/
 
 
 # user
-data/
+*.csv
