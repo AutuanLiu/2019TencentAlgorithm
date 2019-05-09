@@ -1,19 +1,25 @@
-#!/bin/bash
+#!/bin/sh
 
 # 用于统计有效行数
 csv_fns=$(ls *_log.csv)
-rm size.log
+tmp="./size.log"
+
 echo "items\tspace\tfname"
 
 for i in ${csv_fns}
 do
     size=$(cat ${i} | wc -l)
     echo "${size}\t\c"
-    echo ${size} >> size.log
+    echo ${size} >> ${tmp}
     du -h ${i}
 done
 
-echo "\ntotal size\t\c"
-awk '{sums+=$1}END{print sums}' size.log
-rm size.log
+echo "\ntotal items\t\c"
+awk '{sums+=$0}END{print sums}' ${tmp}
+
+# 清理中间文件
+if [ -f ${tmp} ]; then
+    rm ${tmp}
+fi
+
 
