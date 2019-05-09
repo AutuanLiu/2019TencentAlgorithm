@@ -50,6 +50,10 @@ for df, _ in zip(logs1, trange(1000)):
     _ = df.apply(save_csv, axis=1)
 #     df.to_csv('../data/ad_logs.csv', mode='a', index=None, encoding='utf-8', header=False)
 
+col_names1 = ['广告请求id', '广告请求时间', '广告位id', '用户id', '曝光广告id', '曝光广告素材尺寸', '曝光广告出价bid',
+       '曝光广告pctr', '曝光广告quality_ecpm', '曝光广告totalEcpm', '广告id', '创建时间',
+       '广告账户id', '商品id', '商品类型', '广告行业id', '素材尺寸', '广告请求时间_date']
+
 def read_files(dir, pattern):
     fx = os.listdir(dir)
     for f, _ in zip(fx, trange(len(fx))):
