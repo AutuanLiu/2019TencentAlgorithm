@@ -33,6 +33,12 @@ logs1 = pd.read_csv(log_data/'totalExposureLog.out', sep='\t', header=None, name
 
 purge_pat_files('../data', r'^[^_]+_log.csv$')
 
+col = ['广告请求id',
+ '广告请求时间',
+ '广告位id',
+ '用户id',
+ '曝光广告id']
+
 for df, _ in zip(logs1, trange(1000)):
     df = pd.merge(df, ad_static, left_on='曝光广告id', right_on='广告id', how='inner')
     # 3. 去掉非法时间行
@@ -41,6 +47,7 @@ for df, _ in zip(logs1, trange(1000)):
     
     # 1. 去空值
     df.dropna(axis=0, how='any', inplace=True)
+    df = df[col]
     # 2. 去重 所有列相同
     df.drop_duplicates(subset=None, keep='first', inplace=True)
     # 4. 数据类型转换
@@ -50,9 +57,7 @@ for df, _ in zip(logs1, trange(1000)):
     _ = df.apply(save_csv, axis=1)
 #     df.to_csv('../data/ad_logs.csv', mode='a', index=None, encoding='utf-8', header=False)
 
-col_names1 = ['广告请求id', '广告请求时间', '广告位id', '用户id', '曝光广告id', '曝光广告素材尺寸', '曝光广告出价bid',
-       '曝光广告pctr', '曝光广告quality_ecpm', '曝光广告totalEcpm', '广告id', '创建时间',
-       '广告账户id', '商品id', '商品类型', '广告行业id', '素材尺寸', '广告请求时间_date']
+col_names1 = ['广告请求id', '广告请求时间', '广告位id', '用户id', '曝光广告id', '广告请求时间_date']
 
 def read_files(dir, pattern):
     fx = os.listdir(dir)
