@@ -4,9 +4,10 @@
 2. [data_clean](./data_clean.ipynb)
 3. [ad_operation_clean](./ad_operation_clean.ipynb)
 4. [log_clean](./log_clean.ipynb)
-5. [label_construct](./label_construct.ipynb)
-6. [train_test_set](./train_test_set.ipynb)
-7. [baseline](./baseline.ipynb)
+5. [operation_to_ad](./operation_to_ad.ipynb)
+6. [label_construct](./label_construct.ipynb)
+7. [train_test_set](./train_test_set.ipynb)
+8. [baseline](./baseline.ipynb)
 
 
 ## 注意事项
