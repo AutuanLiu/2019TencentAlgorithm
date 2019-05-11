@@ -110,3 +110,6 @@ venv.bak/
 
 # user
 *.csv
+*.out
+*.tgz
+

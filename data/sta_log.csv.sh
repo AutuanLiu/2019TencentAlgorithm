@@ -2,7 +2,12 @@
 
 # 用于统计有效行数
 csv_fns=$(ls *_log.csv)
-tmp="./size.log"
+tmp="size.log"
+
+# 删除
+if [ -f ${tmp} ]; then
+    rm ${tmp}
+fi
 
 echo "items\tspace\tfname"
 
@@ -21,5 +26,6 @@ awk '{sums+=$0}END{print sums}' ${tmp}
 if [ -f ${tmp} ]; then
     rm ${tmp}
 fi
+
 
 
