@@ -4,6 +4,7 @@
 
 |task|进度|完成日期|备注|
 |---|---|---|---|
+|数据预处理|40%|||
 |数据清洗|100%|2019.5.9||
 |训练集制作|70%|||
 
@@ -53,15 +54,107 @@
 tree .
 
 .
+├── data
+│   ├── 2019-02-16_log.csv
+│   ├── 2019-02-16_log_exposed.csv
+│   ├── 2019-02-17_log.csv
+│   ├── 2019-02-17_log_exposed.csv
+│   ├── 2019-02-18_log.csv
+│   ├── 2019-02-18_log_exposed.csv
+│   ├── 2019-02-19_log.csv
+│   ├── 2019-02-19_log_exposed.csv
+│   ├── 2019-02-20_log.csv
+│   ├── 2019-02-20_log_exposed.csv
+│   ├── 2019-02-21_log.csv
+│   ├── 2019-02-21_log_exposed.csv
+│   ├── 2019-02-22_log.csv
+│   ├── 2019-02-22_log_exposed.csv
+│   ├── 2019-02-23_log.csv
+│   ├── 2019-02-23_log_exposed.csv
+│   ├── 2019-02-24_log.csv
+│   ├── 2019-02-24_log_exposed.csv
+│   ├── 2019-02-25_log.csv
+│   ├── 2019-02-25_log_exposed.csv
+│   ├── 2019-02-26_log.csv
+│   ├── 2019-02-26_log_exposed.csv
+│   ├── 2019-02-27_log.csv
+│   ├── 2019-02-27_log_exposed.csv
+│   ├── 2019-02-28_log.csv
+│   ├── 2019-02-28_log_exposed.csv
+│   ├── 2019-03-01_log.csv
+│   ├── 2019-03-01_log_exposed.csv
+│   ├── 2019-03-02_log.csv
+│   ├── 2019-03-02_log_exposed.csv
+│   ├── 2019-03-03_log.csv
+│   ├── 2019-03-03_log_exposed.csv
+│   ├── 2019-03-04_log.csv
+│   ├── 2019-03-04_log_exposed.csv
+│   ├── 2019-03-05_log.csv
+│   ├── 2019-03-05_log_exposed.csv
+│   ├── 2019-03-06_log.csv
+│   ├── 2019-03-06_log_exposed.csv
+│   ├── 2019-03-07_log.csv
+│   ├── 2019-03-07_log_exposed.csv
+│   ├── 2019-03-08_log.csv
+│   ├── 2019-03-08_log_exposed.csv
+│   ├── 2019-03-09_log.csv
+│   ├── 2019-03-09_log_exposed.csv
+│   ├── 2019-03-10_log.csv
+│   ├── 2019-03-10_log_exposed.csv
+│   ├── 2019-03-11_log.csv
+│   ├── 2019-03-11_log_exposed.csv
+│   ├── 2019-03-12_log.csv
+│   ├── 2019-03-12_log_exposed.csv
+│   ├── 2019-03-13_log.csv
+│   ├── 2019-03-13_log_exposed.csv
+│   ├── 2019-03-14_log.csv
+│   ├── 2019-03-14_log_exposed.csv
+│   ├── 2019-03-15_log.csv
+│   ├── 2019-03-15_log_exposed.csv
+│   ├── 2019-03-16_log.csv
+│   ├── 2019-03-16_log_exposed.csv
+│   ├── 2019-03-17_log.csv
+│   ├── 2019-03-17_log_exposed.csv
+│   ├── 2019-03-18_log.csv
+│   ├── 2019-03-18_log_exposed.csv
+│   ├── 2019-03-19_log.csv
+│   ├── 2019-03-19_log_exposed.csv
+│   ├── ad_static_all.csv
+│   ├── ad_static.csv
+│   ├── ad_static_operation.csv
+│   ├── log_data.tgz
+│   ├── log_label.tgz
+│   ├── log_reduced.csv
+│   ├── size.log
+│   └── sta_log.csv.sh
+├── info_FAQ.md
 ├── main.py
 ├── models
+│   ├── __init__.py
 │   ├── layers.py
+│   ├── lgb.py
 │   ├── loss.py
 │   ├── metrics.py
-│   └── network.py
+│   ├── network.py
+│   └── utils.py
 ├── nbs
+│   ├── ad_operation_clean.ipynb
 │   ├── baseline.ipynb
-│   └── pro_data.ipynb
+│   ├── data_clean.ipynb
+│   ├── label_construct.ipynb
+│   ├── log_clean.ipynb
+│   ├── log_clean.py
+│   ├── log_duplicate_rm.py
+│   ├── log_reduced.py
+│   ├── nohup.out
+│   ├── operation_to_ad.ipynb
+│   ├── pro_data.ipynb
+│   ├── __pycache__
+│   │   └── utils.cpython-36.pyc
+│   ├── README.md
+│   ├── sta_exposed.py
+│   ├── train_test_set.ipynb
+│   └── utils.py
 ├── README.md
 ├── requirements.txt
 └── test_A -> data 的软连接路径(快捷方式)
@@ -74,3 +167,4 @@ tree .
 |---|---|---|
 |modin|加速表格文件读取|256x|
 |yapf|格式化文件|`yapf -i -r .`|
+|fastai|模型快速构建与训练||

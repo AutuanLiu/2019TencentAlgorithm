@@ -9,6 +9,13 @@
 7. [train_test_set](./train_test_set.ipynb)
 8. [baseline](./baseline.ipynb)
 
+## python script order
+
+1. [log_reduced](./log_reduced.py)
+2. [log_clean](./log_clean.py)
+3. [log_duplicate_rm](./log_duplicate_rm.py)
+4. [sta_exposed](./sta_exposed.py)
+
 
 ## 注意事项
 
