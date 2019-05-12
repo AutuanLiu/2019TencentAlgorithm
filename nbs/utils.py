@@ -1,5 +1,6 @@
 import modin.pandas as pd
 import time, os, re
+from functools import reduce
 
 
 def isVaildDate(date_str):
@@ -58,4 +59,18 @@ def purge_pat_files(dir, pattern):
     for f in os.listdir(dir):
         if re.search(pattern, f):
             os.remove(os.path.join(dir, f))
+
             
+def or_func(df_row):
+    return reduce(lambda x, y: x|y, map(int, df_row.split(',')))
+
+
+def split_vals(df_row, cols=None, field=None):
+    features = df_row[field].split('|')
+    if features[0] == 'all':
+        df_row[cols] = -999
+    else:
+        for fs in features:
+            val = fs.split(':')
+            df_row[val[0]] = val[1:][0]
+    return df_row

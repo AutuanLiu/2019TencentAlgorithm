@@ -36,15 +36,10 @@ for df, _ in zip(logs1, trange(1000)):
     df['广告请求时间'] = pd.to_datetime(df['广告请求时间'], unit='s')  # 转为日期
     df['广告请求时间_date'] = df['广告请求时间'].apply(lambda x: x.date())
     df = df[col_names1]
-    # df = df.apply(invalid_date, axis=1) # 不存在
     
     # 1. 去空值
     df.dropna(axis=0, how='any', inplace=True)
-    # df = df[col]
-    # 2. 去重 所有列相同 暂不做 避免重复
-    # df.drop_duplicates(subset=None, keep='first', inplace=True)
-    # 4. 数据类型转换
-    # 暂无
+
     # 数据分割
     _ = df.apply(save_csv, axis=1)
 
