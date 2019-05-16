@@ -2,7 +2,7 @@
 https://github.com/bckenstler/CLR/blob/master/clr_callback.py
 """
 
-from keras.callbacks import *
+from tensorflow.python.keras.callbacks import *
 
 
 class CyclicLR(Callback):

@@ -2,8 +2,8 @@
 https://github.com/titu1994/keras-adabound/blob/master/adabound.py
 """
 
-from keras import backend as K
-from keras.optimizers import Optimizer
+from tensorflow.python.keras import backend as K
+from tensorflow.python.keras.optimizers import Optimizer
 
 
 class AdaBound(Optimizer):
