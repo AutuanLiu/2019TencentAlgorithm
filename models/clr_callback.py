@@ -4,6 +4,7 @@ https://github.com/bckenstler/CLR/blob/master/clr_callback.py
 
 from keras.callbacks import *
 
+
 class CyclicLR(Callback):
     """This callback implements a cyclical learning rate policy (CLR).
     The method cycles the learning rate between two boundaries with
@@ -63,8 +64,7 @@ class CyclicLR(Callback):
             iterations since start of cycle). Default is 'cycle'.
     """
 
-    def __init__(self, base_lr=0.001, max_lr=0.006, step_size=2000., mode='triangular',
-                 gamma=1., scale_fn=None, scale_mode='cycle'):
+    def __init__(self, base_lr=0.001, max_lr=0.006, step_size=2000., mode='triangular', gamma=1., scale_fn=None, scale_mode='cycle'):
         super(CyclicLR, self).__init__()
 
         self.base_lr = base_lr
@@ -77,7 +77,7 @@ class CyclicLR(Callback):
                 self.scale_fn = lambda x: 1.
                 self.scale_mode = 'cycle'
             elif self.mode == 'triangular2':
-                self.scale_fn = lambda x: 1/(2.**(x-1))
+                self.scale_fn = lambda x: 1 / (2.**(x - 1))
                 self.scale_mode = 'cycle'
             elif self.mode == 'exp_range':
                 self.scale_fn = lambda x: gamma**(x)
@@ -91,8 +91,7 @@ class CyclicLR(Callback):
 
         self._reset()
 
-    def _reset(self, new_base_lr=None, new_max_lr=None,
-               new_step_size=None):
+    def _reset(self, new_base_lr=None, new_max_lr=None, new_step_size=None):
         """Resets cycle iterations.
         Optional boundary/step size adjustment.
         """
@@ -103,25 +102,25 @@ class CyclicLR(Callback):
         if new_step_size != None:
             self.step_size = new_step_size
         self.clr_iterations = 0.
-        
+
     def clr(self):
-        cycle = np.floor(1+self.clr_iterations/(2*self.step_size))
-        x = np.abs(self.clr_iterations/self.step_size - 2*cycle + 1)
+        cycle = np.floor(1 + self.clr_iterations / (2 * self.step_size))
+        x = np.abs(self.clr_iterations / self.step_size - 2 * cycle + 1)
         if self.scale_mode == 'cycle':
-            return self.base_lr + (self.max_lr-self.base_lr)*np.maximum(0, (1-x))*self.scale_fn(cycle)
+            return self.base_lr + (self.max_lr - self.base_lr) * np.maximum(0, (1 - x)) * self.scale_fn(cycle)
         else:
-            return self.base_lr + (self.max_lr-self.base_lr)*np.maximum(0, (1-x))*self.scale_fn(self.clr_iterations)
-        
+            return self.base_lr + (self.max_lr - self.base_lr) * np.maximum(0, (1 - x)) * self.scale_fn(self.clr_iterations)
+
     def on_train_begin(self, logs={}):
         logs = logs or {}
 
         if self.clr_iterations == 0:
             K.set_value(self.model.optimizer.lr, self.base_lr)
         else:
-            K.set_value(self.model.optimizer.lr, self.clr())        
-            
+            K.set_value(self.model.optimizer.lr, self.clr())
+
     def on_batch_end(self, epoch, logs=None):
-        
+
         logs = logs or {}
         self.trn_iterations += 1
         self.clr_iterations += 1
@@ -131,5 +130,5 @@ class CyclicLR(Callback):
 
         for k, v in logs.items():
             self.history.setdefault(k, []).append(v)
-        
+
         K.set_value(self.model.optimizer.lr, self.clr())
