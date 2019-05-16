@@ -3,20 +3,17 @@
 https://github.com/GLambard/AdamW_Keras/blob/master/AdamW.py
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
+
+import copy
 
 import six
-import copy
 from six.moves import zip
 
 from keras import backend as K
-from keras.utils.generic_utils import serialize_keras_object
-from keras.utils.generic_utils import deserialize_keras_object
 from keras.legacy import interfaces
-
 from keras.optimizers import Optimizer
+from keras.utils.generic_utils import (deserialize_keras_object, serialize_keras_object)
 
 
 class AdamW(Optimizer):
