@@ -244,14 +244,7 @@ tree .
 │   └── utils.py
 ├── README.md
 ├── requirements.txt
-├── test_A
-│   ├── ad_operation.dat
-│   ├── ad_static_feature.out
-│   ├── imps_log
-│   │   └── totalExposureLog.out
-│   ├── test_sample.dat
-│   └── user
-│       └── user_data
+├── test_A -> /home/lab/Datasets/Tencent/test_A/
 └── TrainingModel.ipynb
 
 7 directories, 121 files
