@@ -18,6 +18,7 @@ from keras.legacy import interfaces
 
 from keras.optimizers import Optimizer
 
+
 class AdamW(Optimizer):
     """AdamW optimizer.
     Default parameters follow those provided in the original paper.
@@ -36,10 +37,7 @@ class AdamW(Optimizer):
         - [Fixing Weight Decay Regularization in Adam](https://arxiv.org/abs/1711.05101)
     """
 
-    def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999,
-                 epsilon=None, decay=0., weight_decay=0.025, 
-                 batch_size=1, samples_per_epoch=1, 
-                 epochs=1, **kwargs):
+    def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., weight_decay=0.025, batch_size=1, samples_per_epoch=1, epochs=1, **kwargs):
         super(AdamW, self).__init__(**kwargs)
         with K.name_scope(self.__class__.__name__):
             self.iterations = K.variable(0, dtype='int64', name='iterations')
@@ -63,14 +61,12 @@ class AdamW(Optimizer):
 
         lr = self.lr
         if self.initial_decay > 0:
-            lr = lr * (1. / (1. + self.decay * K.cast(self.iterations,
-                                                      K.dtype(self.decay))))
+            lr = lr * (1. / (1. + self.decay * K.cast(self.iterations, K.dtype(self.decay))))
 
         t = K.cast(self.iterations, K.floatx()) + 1
         '''Bias corrections according to the Adam paper
         '''
-        lr_t = lr * (K.sqrt(1. - K.pow(self.beta_2, t)) /
-                     (1. - K.pow(self.beta_1, t)))
+        lr_t = lr * (K.sqrt(1. - K.pow(self.beta_2, t)) / (1. - K.pow(self.beta_1, t)))
 
         ms = [K.zeros(K.int_shape(p), dtype=K.dtype(p)) for p in params]
         vs = [K.zeros(K.int_shape(p), dtype=K.dtype(p)) for p in params]
@@ -79,18 +75,17 @@ class AdamW(Optimizer):
         for p, g, m, v in zip(params, grads, ms, vs):
             m_t = (self.beta_1 * m) + (1. - self.beta_1) * g
             v_t = (self.beta_2 * v) + (1. - self.beta_2) * K.square(g)
-            
             '''Schedule multiplier eta_t = 1 for simple AdamW
             According to the AdamW paper, eta_t can be fixed, decay, or 
             also be used for warm restarts (AdamWR to come). 
             '''
             eta_t = 1.
-            p_t = p - eta_t*(lr_t * m_t / (K.sqrt(v_t) + self.epsilon))
+            p_t = p - eta_t * (lr_t * m_t / (K.sqrt(v_t) + self.epsilon))
             if self.weight_decay != 0:
                 '''Normalized weight decay according to the AdamW paper
                 '''
-                w_d = self.weight_decay*K.sqrt(self.batch_size/(self.samples_per_epoch*self.epochs))
-                p_t = p_t - eta_t*(w_d*p) 
+                w_d = self.weight_decay * K.sqrt(self.batch_size / (self.samples_per_epoch * self.epochs))
+                p_t = p_t - eta_t * (w_d * p)
 
             self.updates.append(K.update(m, m_t))
             self.updates.append(K.update(v, v_t))
@@ -104,14 +99,16 @@ class AdamW(Optimizer):
         return self.updates
 
     def get_config(self):
-        config = {'lr': float(K.get_value(self.lr)),
-                  'beta_1': float(K.get_value(self.beta_1)),
-                  'beta_2': float(K.get_value(self.beta_2)),
-                  'decay': float(K.get_value(self.decay)),
-                  'weight_decay': float(K.get_value(self.weight_decay)),
-                  'batch_size': int(K.get_value(self.batch_size)),
-                  'samples_per_epoch': int(K.get_value(self.samples_per_epoch)),
-                  'epochs': int(K.get_value(self.epochs)),
-                  'epsilon': self.epsilon}
+        config = {
+            'lr': float(K.get_value(self.lr)),
+            'beta_1': float(K.get_value(self.beta_1)),
+            'beta_2': float(K.get_value(self.beta_2)),
+            'decay': float(K.get_value(self.decay)),
+            'weight_decay': float(K.get_value(self.weight_decay)),
+            'batch_size': int(K.get_value(self.batch_size)),
+            'samples_per_epoch': int(K.get_value(self.samples_per_epoch)),
+            'epochs': int(K.get_value(self.epochs)),
+            'epsilon': self.epsilon
+        }
         base_config = super(AdamW, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))

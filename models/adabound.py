@@ -29,8 +29,7 @@ class AdaBound(Optimizer):
           (https://openreview.net/forum?id=ryQu7f-RZ)
     """
 
-    def __init__(self, lr=0.001, final_lr=0.1, beta_1=0.9, beta_2=0.999, gamma=1e-3,
-                 epsilon=None, decay=0., amsbound=False, weight_decay=0.0, **kwargs):
+    def __init__(self, lr=0.001, final_lr=0.1, beta_1=0.9, beta_2=0.999, gamma=1e-3, epsilon=None, decay=0., amsbound=False, weight_decay=0.0, **kwargs):
         super(AdaBound, self).__init__(**kwargs)
 
         if not 0. <= gamma <= 1.:
@@ -61,14 +60,12 @@ class AdaBound(Optimizer):
 
         lr = self.lr
         if self.initial_decay > 0:
-            lr = lr * (1. / (1. + self.decay * K.cast(self.iterations,
-                                                      K.dtype(self.decay))))
+            lr = lr * (1. / (1. + self.decay * K.cast(self.iterations, K.dtype(self.decay))))
 
         t = K.cast(self.iterations, K.floatx()) + 1
 
         # Applies bounds on actual learning rate
-        step_size = lr * (K.sqrt(1. - K.pow(self.beta_2, t)) /
-                          (1. - K.pow(self.beta_1, t)))
+        step_size = lr * (K.sqrt(1. - K.pow(self.beta_2, t)) / (1. - K.pow(self.beta_1, t)))
 
         final_lr = self.final_lr * lr / self.base_lr
         lower_bound = final_lr * (1. - 1. / (self.gamma * t + 1.))
@@ -100,8 +97,7 @@ class AdaBound(Optimizer):
             # Compute the bounds
             step_size_p = step_size * K.ones_like(denom)
             step_size_p_bound = step_size_p / denom
-            bounded_lr_t = m_t * K.minimum(K.maximum(step_size_p_bound,
-                                                     lower_bound), upper_bound)
+            bounded_lr_t = m_t * K.minimum(K.maximum(step_size_p_bound, lower_bound), upper_bound)
 
             p_t = p - bounded_lr_t
 
@@ -117,14 +113,16 @@ class AdaBound(Optimizer):
         return self.updates
 
     def get_config(self):
-        config = {'lr': float(K.get_value(self.lr)),
-                  'final_lr': float(self.final_lr),
-                  'beta_1': float(K.get_value(self.beta_1)),
-                  'beta_2': float(K.get_value(self.beta_2)),
-                  'gamma': float(self.gamma),
-                  'decay': float(K.get_value(self.decay)),
-                  'epsilon': self.epsilon,
-                  'weight_decay': self.weight_decay,
-                  'amsbound': self.amsbound}
+        config = {
+            'lr': float(K.get_value(self.lr)),
+            'final_lr': float(self.final_lr),
+            'beta_1': float(K.get_value(self.beta_1)),
+            'beta_2': float(K.get_value(self.beta_2)),
+            'gamma': float(self.gamma),
+            'decay': float(K.get_value(self.decay)),
+            'epsilon': self.epsilon,
+            'weight_decay': self.weight_decay,
+            'amsbound': self.amsbound
+        }
         base_config = super(AdaBound, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
