@@ -43,22 +43,23 @@ dense_feat_list = dense_feat_list_gen(train_data, dense_features, hashing=cfg["h
 
 # 序列特征
 padding_func = partial(pad_sequences, dtype=cfg["p_dtype"], padding=cfg["padding"], truncating=cfg["p_truncating"], value=cfg["p_value"])
-keys, sequence_feat_list = {}, []
+keys, sequence_feat_list, padding_feat_list = {}, [], []
 for feature, cnt in zip(multi_value_features, multi_value_features_cnt):
-    squence = single_multi_value_feature_encoding(train_data,
-                                                  feature,
-                                                  padding_func,
-                                                  keys,
-                                                  sequence_dim=None,
-                                                  max_feature_length=cnt,
-                                                  combiner=cfg["p_combiner"],
-                                                  hashing=cfg["hashing"])
+    squence, padding = single_multi_value_feature_encoding(train_data,
+                                                           feature,
+                                                           padding_func,
+                                                           keys,
+                                                           sequence_dim=None,
+                                                           max_feature_length=cnt,
+                                                           combiner=cfg["p_combiner"],
+                                                           hashing=cfg["hashing"])
     sequence_feat_list.append(squence)
+    padding_feat_list.append(padding)
 
 # 模型输入
 sparse_input = [train_data[feat.name].values for feat in sparse_feat_list]
 dense_input = [train_data[feat.name].values for feat in dense_feat_list]
-sequence_input = sequence_feat_list
+sequence_input = padding_feat_list
 model_input = sparse_input + dense_input + sequence_input
 
 # 模型定义

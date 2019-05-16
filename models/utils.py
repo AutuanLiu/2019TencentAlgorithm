@@ -44,13 +44,13 @@ def single_multi_value_feature_encoding(data, feature, padding_func, key2index={
     # padding 对齐
     padding_feature = padding_func(feature_list, max_length)
     dim = sequence_dim if sequence_dim else len(key2index) + 1
-    sequence_feature = VarLenFeat(feature, dim, max_length, combiner, hash_flag=hashing, dtype="string")
-    return sequence_feature
+    sequence_feature = VarLenFeat(feature, dim, max_length, combiner, hash_flag=hashing, dtype="float32")
+    return sequence_feature, padding_feature
 
 
 def sparse_feat_list_gen(data, sparse_features, mult=1, hashing=False):
-    return [SingleFeat(feat, data[feat].nunique() * mult, hash_flag=hashing, dtype='string') for feat in sparse_features]
+    return [SingleFeat(feat, data[feat].nunique() * mult, hash_flag=hashing, dtype='float32') for feat in sparse_features]
 
 
 def dense_feat_list_gen(data, dense_features, hashing=False):
-    return [SingleFeat(feat, 0, hash_flag=hashing, dtype='string') for feat in dense_features]
+    return [SingleFeat(feat, 0, hash_flag=hashing, dtype='float32') for feat in dense_features]
