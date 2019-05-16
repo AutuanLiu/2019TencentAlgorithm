@@ -76,13 +76,13 @@ model = xDeepFM({
 print(model.summary())
 
 # 模型配置
-# adamw = AdamW(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., weight_decay=0.025, batch_size=1, samples_per_epoch=1, epochs=1)
-adabound = AdaBound(lr=1e-03, final_lr=0.1, gamma=1e-03, weight_decay=0., amsbound=False)
+adamw = AdamW(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., weight_decay=0.025, batch_size=1, samples_per_epoch=1, epochs=1)
+# adabound = AdaBound(lr=1e-03, final_lr=0.1, gamma=1e-03, weight_decay=0., amsbound=False)
 clr = CyclicLR(scale_fn=lambda x: 1 / (5**(x * 0.0001)), scale_mode='iterations')
 early_stopping = EarlyStopping(monitor='val_loss', patience=50, verbose=1)
 
 # 模型拟合
-model.compile(adabound, "mse", metrics=['mse'])
+model.compile(adamw, "mse", metrics=['mse'])
 history = model.fit(model_input, target, batch_size=32, epochs=500, verbose=1, validation_split=0.2, workers=4, callbacks=[clr, early_stopping])
 
 # 保存模型权重
