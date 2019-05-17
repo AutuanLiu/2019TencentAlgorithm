@@ -61,5 +61,5 @@ preds = model.predict(model_input, batch_size=1, verbose=1, workers=4)
 # 提交文件生成
 submission = pd.DataFrame(columns=['sample_id', 'preds'])
 submission['sample_id'] = test_data['sample_id']
-submission['preds'] = pd.Series(scale(preds))
-submission.to_csv('../data/submission.csv', index=None, header=None, encoding='utf-8')
+submission['preds'] = pd.Series(scale(preds.reshape(-1, )))
+submission.to_csv('submission.csv', index=None, header=None, encoding='utf-8')
