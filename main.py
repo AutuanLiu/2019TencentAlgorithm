@@ -1,13 +1,12 @@
 from functools import partial
 
-import numpy as np
+import deepctr.models as ctr
+import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
+from tensorflow.python.keras.callbacks import EarlyStopping
+from tensorflow.python.keras.preprocessing.sequence import pad_sequences
+from tensorflow.python.keras.utils import plot_model
 
-from deepctr.models import DeepFM, xDeepFM
-from keras.callbacks import EarlyStopping
-from keras.preprocessing.sequence import pad_sequences
 from models import AdaBound, AdamW, CyclicLR
 from models.utils import *
 
@@ -15,7 +14,7 @@ from models.utils import *
 path = './data/'
 
 # 数据读取
-[train_data, test_data] = [pd.read_csv(f'{path}{fn}', low_memory=False, encoding='utf-8') for fn in ['train_set_final.csv', 'test_set_final.csv']]
+train_data = pd.read_csv(f'{path}train_set_final.csv', low_memory=False, encoding='utf-8')
 
 # 变量类型
 sparse_features = [
@@ -25,60 +24,69 @@ sparse_features = [
 ]
 dense_features = ['price']
 multi_value_features = ['size', 'time', 'age', 'area', 'device', 'behavior', 'connectionType', 'gender', 'education', 'status', 'work']
-multi_value_features_cnt = [4, 7, 10, 10, 8, 10, 7, 5, 10, 17, 8]
+multi_value_features_cnt = [5, 7, 1000, 2000, 8, 500, 7, 5, 10, 17, 8]
 
 # 预测目标
 target = train_data['target']
+print(any(target.isna()), target)
 
 # settings
-cfg = {"hashing": False, "p_combiner": 'mean', "padding": 'post', "p_dtype": 'float64', "p_truncating": "post", "p_value": 0.}
+BATCH, EPOCH = 256, 5
+cfg = {"hash_flag": False, "combiner": 'mean'}
+padding_cfg = {"padding": 'post', "dtype": 'float32', "truncating": "post", "value": 0.}
+model_name = 'xDeepFM'    # 'DeepFM', 'DIN'
+model_settings = {"embedding_size": 8, "dnn_use_bn": True, "dnn_dropout": 0.001}
 
 # 数值编码
 # 稀疏特征
 train_data = sparse_feature_encoding(train_data, sparse_features)
-sparse_feat_list = sparse_feat_list_gen(train_data, sparse_features, mult=1, hashing=cfg["hashing"])
+sparse_feat_list = sparse_feat_list_gen(train_data, sparse_features, mult=1, hash_flag=cfg["hash_flag"])
 
 # 连续特征
-dense_feat_list = dense_feat_list_gen(train_data, dense_features, hashing=cfg["hashing"])
+dense_feat_list = dense_feat_list_gen(train_data, dense_features, hash_flag=cfg["hash_flag"])
 
 # 序列特征
-padding_func = partial(pad_sequences, dtype=cfg["p_dtype"], padding=cfg["padding"], truncating=cfg["p_truncating"], value=cfg["p_value"])
-keys, sequence_feat_list = {}, []
+padding_func = partial(pad_sequences, **padding_cfg)
+sequence_feat_list, padding_feat_list = [], []
 for feature, cnt in zip(multi_value_features, multi_value_features_cnt):
-    squence = single_multi_value_feature_encoding(train_data,
-                                                  feature,
-                                                  padding_func,
-                                                  keys,
-                                                  sequence_dim=None,
-                                                  max_feature_length=cnt,
-                                                  combiner=cfg["p_combiner"],
-                                                  hashing=cfg["hashing"])
+    squence, padding = single_multi_value_feature_encoding(train_data, feature, padding_func, max_feature_length=cnt, **cfg)
     sequence_feat_list.append(squence)
+    padding_feat_list.append(padding)
 
 # 模型输入
 sparse_input = [train_data[feat.name].values for feat in sparse_feat_list]
 dense_input = [train_data[feat.name].values for feat in dense_feat_list]
-sequence_input = sequence_feat_list
-model_input = sparse_input + dense_input + sequence_input
+model_input = sparse_input + dense_input + padding_feat_list
+feature_dim_dict = {"sparse": sparse_feat_list, "dense": dense_feat_list, "sequence": sequence_feat_list}
+print(model_input)
 
 # 模型定义
-model = xDeepFM({
-    "sparse": sparse_feat_list,
-    "dense": dense_feat_list,
-    "sequence": sequence_feat_list
-},
-                embedding_size=10,
-                dnn_use_bn=True,
-                dnn_dropout=0.1,
-                task='regression')
+model = getattr(ctr, model_name)(feature_dim_dict, task='regression', **model_settings)
 
-print(model)
+# 模型结构与可视化
+print(model.summary())
+# plot_model(model, show_shapes=True, to_file=f'./imgs/{model_name}.png')
+
 # 模型配置
-# adamw = AdamW(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., weight_decay=0.025, batch_size=1, samples_per_epoch=1, epochs=1)
-adabound = AdaBound(lr=1e-03, final_lr=0.1, gamma=1e-03, weight_decay=0., amsbound=False)
-clr = CyclicLR(scale_fn=lambda x: 1 / (5**(x * 0.0001)), scale_mode='iterations')
-early_stopping = EarlyStopping(monitor='val_loss', patience=50, verbose=2)
+# adamw = AdamW(lr=3e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., weight_decay=0.025, batch_size=1, samples_per_epoch=1, epochs=1, clipnorm=1.)
+adabound = AdaBound(lr=3e-03, final_lr=0.1, gamma=1e-03, weight_decay=0.001, amsbound=False)
+# clr = CyclicLR(scale_fn=lambda x: 1 / (5**(x * 0.0001)), scale_mode='iterations')
+clr = CyclicLR(mode='triangular')
+early_stopping = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
 
 # 模型拟合
 model.compile(adabound, "mse", metrics=['mse'])
-history = model.fit(model_input, target, batch_size=32, epochs=500, verbose=2, validation_split=0.2, callbacks=[clr, early_stopping])
+history = model.fit(model_input, target, batch_size=BATCH, epochs=EPOCH, verbose=1, validation_split=0.1, workers=4, callbacks=[clr, early_stopping])
+
+# 保存模型权重
+model.save(f'./models/{model_name}.h5')
+model.save_weights(f'./models/{model_name}_weights.h5')
+preds = model.predict(model_input, batch_size=256, verbose=1, workers=4)
+print(preds)
+# 可视化
+# plt.plot(clr.history['iterations'], clr.history['lr'])
+# plt.show()
+
+    # # 损失函数
+    # plt.plot(history.history['val_loss'])
+    # plt.show()
