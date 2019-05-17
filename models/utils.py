@@ -4,6 +4,10 @@ from sklearn.preprocessing import LabelEncoder
 from deepctr.utils import SingleFeat, VarLenFeat
 
 
+def emb_sz_rule1(n_cat: int) -> int:
+    return min(50, (n_cat // 2) + 1)
+
+
 def emb_sz_rule(n_cat: int) -> int:
     return min(600, round(1.6 * n_cat**0.56))
 
@@ -17,7 +21,7 @@ def sparse_feature_encoding(data, sparse_features_names):
     return data
 
 
-def single_multi_value_feature_encoding(data, feature, padding_func, sequence_dim=None, max_feature_length=None, combiner='mean', hashing=False):
+def single_multi_value_feature_encoding(data, feature, padding_func, sequence_dim=None, max_feature_length=None, **kwargs):
     """单个特征操作
     
     Arguments:
@@ -26,7 +30,6 @@ def single_multi_value_feature_encoding(data, feature, padding_func, sequence_di
         padding_func (function) -- padding 函数
         max_feature_length (int) -- 自定义长度
         sequence_dim (int) -- 序列特征维度
-        combiner (str) -- defaults to 'mean'
     
     Returns:
         sequence_feature  -- padding 后的特征
@@ -49,13 +52,16 @@ def single_multi_value_feature_encoding(data, feature, padding_func, sequence_di
     # padding 对齐
     padding_feature = padding_func(feature_list, max_length)
     dim = sequence_dim if sequence_dim else emb_sz_rule(len(key2index) + 1)
-    sequence_feature = VarLenFeat(feature, dim, max_length, combiner, hash_flag=hashing, dtype="float32")
+    print(feature, ' info:')
+    print(f'len_unique： {len(key2index): 8d}, emb_sz： {dim: 8d}, max_len： {max_length: 8d}')
+    del key2index
+    sequence_feature = VarLenFeat(feature, dim, max_length, dtype="float32", **kwargs)
     return sequence_feature, padding_feature
 
 
-def sparse_feat_list_gen(data, sparse_features, mult=1, hashing=False):
-    return [SingleFeat(feat, data[feat].nunique() * mult, hash_flag=hashing, dtype='float32') for feat in sparse_features]
+def sparse_feat_list_gen(data, sparse_features, mult=1, hash_flag=False):
+    return [SingleFeat(feat, data[feat].nunique() * mult, hash_flag=hash_flag, dtype='float32') for feat in sparse_features]
 
 
-def dense_feat_list_gen(data, dense_features, hashing=False):
-    return [SingleFeat(feat, 0, hash_flag=hashing, dtype='float32') for feat in dense_features]
+def dense_feat_list_gen(data, dense_features, hash_flag=False):
+    return [SingleFeat(feat, 0, hash_flag=hash_flag, dtype='float32') for feat in dense_features]

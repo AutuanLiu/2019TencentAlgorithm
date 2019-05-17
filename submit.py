@@ -3,11 +3,10 @@ from functools import partial
 import deepctr.models as ctr
 import numpy as np
 import pandas as pd
-from tensorflow.python.keras.callbacks import EarlyStopping
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 from tensorflow.python.keras.utils import plot_model
+from tensorflow.python.keras.models import load_model
 
-from models import AdaBound, AdamW, CyclicLR
 from models.utils import *
 
 
@@ -30,26 +29,28 @@ sparse_features = [
 ]
 dense_features = ['price']
 multi_value_features = ['size', 'time', 'age', 'area', 'device', 'behavior', 'connectionType', 'gender', 'education', 'status', 'work']
-multi_value_features_cnt = [4, 7, 10, 10, 8, 10, 7, 5, 10, 15, 8]
+multi_value_features_cnt = [5, 7, 1000, 2000, 8, 500, 7, 5, 10, 17, 8]
+multi_value_features_emb_sz = [10, 94, 76, 171, 5, 357, 5, 4, 6, 8, 5]
 
 # settings
-cfg = {"hashing": False, "combiner": 'mean'}
+cfg = {"hash_flag": False, "combiner": 'mean'}
 padding_cfg = {"padding": 'post', "dtype": 'float32', "truncating": "post", "value": 0.}
-model_name = 'xDeepFM'
+model_name = 'xDeepFM'    # 'DeepFM', 'DIN'
+model_settings = {"embedding_size": 8, "dnn_use_bn": True, "dnn_dropout": 0.001}
 
 # 数值编码
 # 稀疏特征
 test_data = sparse_feature_encoding(test_data, sparse_features)
-sparse_feat_list = sparse_feat_list_gen(test_data, sparse_features, mult=1, hashing=cfg["hashing"])
+sparse_feat_list = sparse_feat_list_gen(test_data, sparse_features, mult=1, hash_flag=cfg["hash_flag"])
 
 # 连续特征
-dense_feat_list = dense_feat_list_gen(test_data, dense_features, hashing=cfg["hashing"])
+dense_feat_list = dense_feat_list_gen(test_data, dense_features, hash_flag=cfg["hash_flag"])
 
 # 序列特征
 padding_func = partial(pad_sequences, **padding_cfg)
 sequence_feat_list, padding_feat_list = [], []
-for feature, cnt in zip(multi_value_features, multi_value_features_cnt):
-    squence, padding = single_multi_value_feature_encoding(test_data, feature, padding_func, sequence_dim=None, max_feature_length=cnt, **cfg)
+for feature, emb_sz, cnt in zip(multi_value_features, multi_value_features_emb_sz, multi_value_features_cnt):
+    squence, padding = single_multi_value_feature_encoding(test_data, feature, padding_func, sequence_dim=emb_sz, max_feature_length=cnt, **cfg)
     sequence_feat_list.append(squence)
     padding_feat_list.append(padding)
 
@@ -57,9 +58,13 @@ for feature, cnt in zip(multi_value_features, multi_value_features_cnt):
 sparse_input = [test_data[feat.name].values for feat in sparse_feat_list]
 dense_input = [test_data[feat.name].values for feat in dense_feat_list]
 model_input = sparse_input + dense_input + padding_feat_list
+feature_dim_dict = {"sparse": sparse_feat_list, "dense": dense_feat_list, "sequence": sequence_feat_list}
+
+# 模型定义
+model = getattr(ctr, model_name)(feature_dim_dict, task='regression', **model_settings)
 
 # 模型加载
-model = load_model(f'./models/{model_name}.h5')
+model.load_weights(f'./models/{model_name}_weights.h5')
 
 # 预测
 preds = model.predict(model_input, batch_size=1, verbose=1, workers=4)
