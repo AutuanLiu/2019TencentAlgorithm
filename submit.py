@@ -3,6 +3,7 @@ from functools import partial
 import deepctr.models as ctr
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 from tensorflow.python.keras.utils import plot_model
 from tensorflow.python.keras.models import load_model
@@ -19,7 +20,7 @@ def relu(x: np.ndarray) -> np.ndarray:
 path = './data/'
 
 # 数据读取
-test_data = pd.read_csv(f'{path}test_set_final.csv', low_memory=False, encoding='utf-8')
+test_data = pd.read_csv(f'{path}test_set_final1.csv', low_memory=False, encoding='utf-8')
 
 # 变量类型
 sparse_features = [
@@ -36,7 +37,6 @@ multi_value_features_emb_sz = [10, 94, 76, 171, 5, 357, 5, 4, 6, 8, 5]
 cfg = {"hash_flag": False, "combiner": 'mean'}
 padding_cfg = {"padding": 'post', "dtype": 'float32', "truncating": "post", "value": 0.}
 model_name = 'xDeepFM'    # 'DeepFM', 'DIN'
-model_settings = {"embedding_size": 8, "dnn_use_bn": True, "dnn_dropout": 0.001}
 
 # 数值编码
 # 稀疏特征
@@ -60,23 +60,11 @@ dense_input = [test_data[feat.name].values for feat in dense_feat_list]
 model_input = sparse_input + dense_input + padding_feat_list
 feature_dim_dict = {"sparse": sparse_feat_list, "dense": dense_feat_list, "sequence": sequence_feat_list}
 
-# 模型定义
-model = getattr(ctr, model_name)(feature_dim_dict, task='regression', **model_settings)
-
 # 模型加载
-model.load_weights(f'./models/{model_name}_weights.h5')
+model = load_model(f'./saved/{model_name}.h5')
 
 # 预测
 preds = model.predict(model_input, batch_size=1, verbose=1, workers=4)
-
-
-# 最终结果
-def scale(x):
-    out = relu(x) if isinstance(x, np.ndarray) else relu(np.array(x))
-    out = np.exp(out) - 1
-    out = np.round(out, decimals=4)
-    return out
-
 
 # 提交文件生成
 submission = pd.DataFrame(columns=['sample_id', 'preds'])
