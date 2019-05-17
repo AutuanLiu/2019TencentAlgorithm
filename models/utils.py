@@ -10,7 +10,7 @@ def relu(x: np.ndarray) -> np.ndarray:
     return np.clip(out, 0, None)
 
 
-def scale(x):
+def scale(x: np.ndarray) -> np.ndarray:
     out = relu(x)
     out = np.exp(out) - 1
     out = np.round(out, decimals=4)
