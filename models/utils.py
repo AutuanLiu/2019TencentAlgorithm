@@ -1,7 +1,20 @@
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from deepctr.utils import SingleFeat, VarLenFeat
+
+
+def relu(x: np.ndarray) -> np.ndarray:
+    out = x if isinstance(x, np.ndarray) else np.array(x)
+    return np.clip(out, 0, None)
+
+
+def scale(x):
+    out = relu(x)
+    out = np.exp(out) - 1
+    out = np.round(out, decimals=4)
+    return out
 
 
 def emb_sz_rule1(n_cat: int) -> int:
@@ -27,7 +40,6 @@ def dense_feature_scale(data, dense_features_names, scaler=None):
     scaler = scaler if scaler else StandardScaler().fit(data[dense_features_names])
     data[dense_features_names] = scaler.transform(data[dense_features_names])
     return data, scaler
-
 
 
 def single_multi_value_feature_encoding(data, feature, padding_func, sequence_dim=None, max_feature_length=None, **kwargs):

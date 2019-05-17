@@ -32,7 +32,7 @@ multi_value_features_cnt = [5, 7, 1000, 2000, 8, 500, 7, 5, 10, 17, 8]
 target = train_data['target']
 
 # settings
-BATCH, EPOCH = 512, 100
+BATCH, EPOCH = 512, 1
 cfg = {"hash_flag": True, "combiner": 'mean'}
 padding_cfg = {"padding": 'post', "dtype": 'float32', "truncating": "post", "value": 0.}
 model_name = 'xDeepFM'    # 'DeepFM', 'DIN'
@@ -72,24 +72,57 @@ plot_model(model, show_shapes=True, to_file=f'./imgs/{model_name}.png')
 
 # 模型配置
 adamw = AdamW(lr=3e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., weight_decay=0.025, batch_size=1, samples_per_epoch=1, epochs=1, clipnorm=1.)
-# adabound = AdaBound(lr=3e-03, final_lr=0.1, gamma=1e-03, weight_decay=0.001, amsbound=False)
+adabound = AdaBound(lr=3e-03, final_lr=0.1, gamma=1e-03, weight_decay=0.001, amsbound=False)
 # clr = CyclicLR(scale_fn=lambda x: 1 / (5**(x * 0.0001)), scale_mode='iterations')
 clr = CyclicLR(mode='triangular')
 early_stopping = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
 
 # 模型拟合
-model.compile(adamw, huber_loss, metrics=['mse'])
-history = model.fit(model_input, target, batch_size=BATCH, epochs=EPOCH, verbose=1, validation_split=0.1, workers=4, callbacks=[clr, early_stopping])
+model.compile(adabound, huber_loss, metrics=['mse'])
+history = model.fit(model_input, target, batch_size=BATCH, epochs=EPOCH, verbose=1, validation_split=0.1, workers=4, callbacks=[early_stopping])
 
 # 保存模型权重
 model.save(f'./saved/{model_name}.h5')
 model.save_weights(f'./saved/{model_name}_weights.h5')
-del model
 
 # 可视化
-plt.plot(clr.history['iterations'], clr.history['lr'])
-plt.show()
+# plt.plot(clr.history['iterations'], clr.history['lr'])
+# plt.show()
 
 # 损失函数
-plt.plot(history.epoch, history.history['loss'], 'g--', history.epoch, history.history['val_loss'], 'b--')
-plt.show()
+# plt.plot(history.epoch, history.history['loss'], 'g--', history.epoch, history.history['val_loss'], 'b--')
+# plt.show()
+
+# !TODO ！预测
+multi_value_features_emb_sz = [10, 94, 76, 171, 5, 357, 5, 4, 6, 8, 5]
+
+# 数值编码
+# 稀疏特征
+test_data = sparse_feature_encoding(test_data, sparse_features)
+sparse_feat_list = sparse_feat_list_gen(test_data, sparse_features, mult=1, hash_flag=cfg["hash_flag"])
+
+# 连续特征
+dense_feat_list = dense_feat_list_gen(test_data, dense_features, hash_flag=cfg["hash_flag"])
+
+# 序列特征
+padding_func = partial(pad_sequences, **padding_cfg)
+padding_feat_list = []
+for feature, emb_sz, cnt in zip(multi_value_features, multi_value_features_emb_sz, multi_value_features_cnt):
+    _, padding = single_multi_value_feature_encoding(test_data, feature, padding_func, sequence_dim=emb_sz, max_feature_length=cnt, **cfg)
+    padding_feat_list.append(padding)
+
+# 模型输入
+sparse_input = [test_data[feat.name].values for feat in sparse_feat_list]
+dense_input = [test_data[feat.name].values for feat in dense_feat_list]
+model_input = sparse_input + dense_input + padding_feat_list
+
+# 预测
+preds = model.predict(model_input, batch_size=BATCH, verbose=1, workers=4)
+
+# 提交文件生成
+submission = pd.DataFrame(columns=['sample_id', 'preds'])
+submission['sample_id'] = test_data['sample_id']
+submission['preds'] = pd.Series(scale(preds))
+submission.to_csv('../data/submission.csv', index=None, header=None, encoding='utf-8')
+
+del model

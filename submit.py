@@ -10,12 +10,6 @@ from tensorflow.python.keras.models import load_model
 
 from models.utils import *
 
-
-# ReLu
-def relu(x: np.ndarray) -> np.ndarray:
-    return np.clip(x, 0, None)
-
-
 # 工作路径设置
 path = './data/'
 
@@ -48,17 +42,15 @@ dense_feat_list = dense_feat_list_gen(test_data, dense_features, hash_flag=cfg["
 
 # 序列特征
 padding_func = partial(pad_sequences, **padding_cfg)
-sequence_feat_list, padding_feat_list = [], []
+padding_feat_list = []
 for feature, emb_sz, cnt in zip(multi_value_features, multi_value_features_emb_sz, multi_value_features_cnt):
-    squence, padding = single_multi_value_feature_encoding(test_data, feature, padding_func, sequence_dim=emb_sz, max_feature_length=cnt, **cfg)
-    sequence_feat_list.append(squence)
+    _, padding = single_multi_value_feature_encoding(test_data, feature, padding_func, sequence_dim=emb_sz, max_feature_length=cnt, **cfg)
     padding_feat_list.append(padding)
 
 # 模型输入
 sparse_input = [test_data[feat.name].values for feat in sparse_feat_list]
 dense_input = [test_data[feat.name].values for feat in dense_feat_list]
 model_input = sparse_input + dense_input + padding_feat_list
-feature_dim_dict = {"sparse": sparse_feat_list, "dense": dense_feat_list, "sequence": sequence_feat_list}
 
 # 模型加载
 model = load_model(f'./saved/{model_name}.h5')
