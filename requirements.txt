@@ -1,2 +1,13 @@
 modin
 yapf
+pydot
+tensorflow
+keras
+deepctr
+torch
+numpy
+pandas
+matplotlib
+sklearn
+jupyterlab
+graphviz
