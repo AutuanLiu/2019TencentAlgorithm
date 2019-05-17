@@ -71,8 +71,8 @@ model = getattr(ctr, model_name)(feature_dim_dict, task='regression', **model_se
 plot_model(model, show_shapes=True, to_file=f'./imgs/{model_name}.png')
 
 # 模型配置
-adamw = AdamW(lr=3e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., weight_decay=0.025, batch_size=1, samples_per_epoch=1, epochs=1, clipnorm=1.)
-adabound = AdaBound(lr=3e-03, final_lr=0.1, gamma=1e-03, weight_decay=0.001, amsbound=False)
+adamw = AdamW(lr=5e-4, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., weight_decay=0.025, batch_size=1, samples_per_epoch=1, epochs=1, clipnorm=1.)
+adabound = AdaBound(lr=5e-6, final_lr=1e-3, gamma=1e-03, weight_decay=0.001, amsbound=False)
 # clr = CyclicLR(scale_fn=lambda x: 1 / (5**(x * 0.0001)), scale_mode='iterations')
 clr = CyclicLR(mode='triangular')
 early_stopping = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
