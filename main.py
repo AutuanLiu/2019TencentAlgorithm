@@ -32,7 +32,7 @@ multi_value_features_cnt = [5, 7, 1000, 2000, 8, 500, 7, 5, 10, 17, 8]
 target = train_data['target']
 
 # settings
-BATCH, EPOCH = 512, 1
+BATCH, EPOCH = 512, 300
 cfg = {"hash_flag": True, "combiner": 'mean'}
 padding_cfg = {"padding": 'post', "dtype": 'float32', "truncating": "post", "value": 0.}
 model_name = 'xDeepFM'    # 'DeepFM', 'DIN'
@@ -122,7 +122,7 @@ preds = model.predict(model_input, batch_size=BATCH, verbose=1, workers=4)
 # 提交文件生成
 submission = pd.DataFrame(columns=['sample_id', 'preds'])
 submission['sample_id'] = test_data['sample_id']
-submission['preds'] = pd.Series(scale(preds))
-submission.to_csv('../data/submission.csv', index=None, header=None, encoding='utf-8')
+submission['preds'] = pd.Series(scale(preds.reshape(-1, )))
+submission.to_csv('submission.csv', index=None, header=None, encoding='utf-8')
 
 del model
