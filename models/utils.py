@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from deepctr.utils import SingleFeat, VarLenFeat
 
@@ -19,6 +19,15 @@ def sparse_feature_encoding(data, sparse_features_names):
         lbe = LabelEncoder()
         data[feat] = lbe.fit_transform(data[feat])
     return data
+
+
+def dense_feature_scale(data, dense_features_names, scaler=None):
+    """连续变量放缩"""
+
+    scaler = scaler if scaler else StandardScaler().fit(data[dense_features_names])
+    data[dense_features_names] = scaler.transform(data[dense_features_names])
+    return data, scaler
+
 
 
 def single_multi_value_feature_encoding(data, feature, padding_func, sequence_dim=None, max_feature_length=None, **kwargs):
@@ -52,7 +61,6 @@ def single_multi_value_feature_encoding(data, feature, padding_func, sequence_di
     # padding 对齐
     padding_feature = padding_func(feature_list, max_length)
     dim = sequence_dim if sequence_dim else emb_sz_rule(len(key2index) + 1)
-    print(feature, ' info:')
     print(f'len_unique： {len(key2index): 8d}, emb_sz： {dim: 8d}, max_len： {max_length: 8d}')
     del key2index
     sequence_feature = VarLenFeat(feature, dim, max_length, dtype="float32", **kwargs)
