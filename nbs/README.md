@@ -10,7 +10,7 @@
 8. 修改操作数据处理 [train_ads_features-fix.ipynb](./train_ads_features-fix.ipynb)
 9. 测试集特征处理 [test_features.ipynb](./test_features.ipynb)
 10. 初始数据集制作与打标签 [train_test_set.ipynb](./train_test_set.ipynb)
-11. 数据集后处理 [post_pre.ipynb](./post_pre.ipynb)
+11. 数据集后处理 [post_process.ipynb](./post_process.ipynb)
 12. 结果生成与提交 [submit.ipynb](./submit.ipynb)
 
 ## python script order
