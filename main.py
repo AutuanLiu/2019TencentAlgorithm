@@ -35,8 +35,50 @@ target = train_data['target']
 BATCH, EPOCH = 512, 500
 cfg = {"hash_flag": True, "combiner": 'mean'}
 padding_cfg = {"padding": 'post', "dtype": 'float32', "truncating": "post", "value": 0.}
-model_name = 'xDeepFM'    # 'DeepFM', 'DIN'
-model_settings = {"embedding_size": 8, "dnn_use_bn": True, "dnn_dropout": 0.0}
+
+## !! TODO 关于模型的设置 !!
+# DeepFM, AFM, AutoInt, DCN, FNN, NFM, PNN, CCPM, FGCNN
+# 1. xDeepFM 模型
+# model_name = 'xDeepFM'
+# model_settings = {
+#     "embedding_size": 8,
+#     "dnn_hidden_units": (256, 256),
+#     "cin_layer_size": (128, 128),
+#     "l2_reg_linear": 1e-05,
+#     "l2_reg_embedding": 1e-05,
+#     "l2_reg_dnn": 0,
+#     "l2_reg_cin": 0,
+#     "dnn_use_bn": True,
+#     "dnn_dropout": 0.0
+# }
+
+# 2. FGCNN 模型
+model_name = 'FGCNN'
+model_settings = {
+    "embedding_size": 8,
+    "conv_kernel_width": (7, 7, 7, 7),
+    "conv_filters": (14, 16, 18, 20),
+    "new_maps": (3, 3, 3, 3),
+    "pooling_width": (2, 2, 2, 2),
+    "dnn_hidden_units": (128, ),
+    "l2_reg_embedding": 1e-5,
+    "l2_reg_dnn": 0,
+    "dnn_dropout": 0
+}
+
+# 3. DIEN 模型
+# model_name = 'DIEN'
+# model_settings = {
+#     "embedding_size": 8,
+#     "dnn_hidden_units": (128, 128),
+#     "l2_reg_embedding": 1e-5,
+#     "l2_reg_linear": 1e-5,
+#     "l2_reg_dnn": 0,
+#     "bi_dropout": 0,
+#     "dnn_dropout": 0,
+#     "dnn_activation": 'relu'
+# }
+## !! TODO 关于模型的设置结束 !!
 
 # 数值编码
 # 稀疏特征
@@ -70,17 +112,17 @@ model = getattr(ctr, model_name)(feature_dim_dict, task='regression', **model_se
 # print(model.summary())
 plot_model(model, show_shapes=True, to_file=f'./imgs/{model_name}.png')
 
-# 模型配置
+## TODO 模型配置
 adamw = AdamW(lr=5e-4, weight_decay=0.025)
-adabound = AdaBound(lr=5e-4, final_lr=1e-1, weight_decay=0.001, amsbound=False)
+adabound = AdaBound(lr=5e-6, final_lr=1e-3, weight_decay=0.001, amsbound=False)
 
 # clr = CyclicLR(scale_fn=lambda x: 1 / (5**(x * 0.0001)), scale_mode='iterations')
 clr = CyclicLR(mode='triangular')
 early_stopping = EarlyStopping(monitor='val_loss', patience=10)
 
 # 模型拟合
-model.compile(adamw, huber_loss, metrics=['mse', "mae"])
-history = model.fit(model_input, target, batch_size=BATCH, epochs=EPOCH, validation_split=0.1, workers=4, callbacks=[clr, early_stopping])
+model.compile(adabound, huber_loss, metrics=['mse', "mae"])
+history = model.fit(model_input, target, batch_size=BATCH, epochs=EPOCH, validation_split=0.1, workers=4, callbacks=[early_stopping])
 
 # 保存模型权重
 model.save(f'./saved/{model_name}.h5')
