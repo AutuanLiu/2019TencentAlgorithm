@@ -10,7 +10,7 @@ def relu(x: np.ndarray) -> np.ndarray:
     return np.clip(out, 0, None)
 
 
-def scale(x):
+def scale(x: np.ndarray) -> np.ndarray:
     out = relu(x)
     out = np.exp(out) - 1
     out = np.round(out, decimals=4)
@@ -73,14 +73,17 @@ def single_multi_value_feature_encoding(data, feature, padding_func, sequence_di
     # padding 对齐
     padding_feature = padding_func(feature_list, max_length)
     dim = sequence_dim if sequence_dim else emb_sz_rule(len(key2index) + 1)
-    print(f'len_unique： {len(key2index): 8d}, emb_sz： {dim: 8d}, max_len： {max_length: 8d}')
+    print(f'len_unique： {len(key2index) + 1: 8d}, emb_sz： {dim: 8d}, max_len： {max_length: 8d}')
     del key2index
     sequence_feature = VarLenFeat(feature, dim, max_length, dtype="float32", **kwargs)
     return sequence_feature, padding_feature
 
 
-def sparse_feat_list_gen(data, sparse_features, mult=1, hash_flag=False):
-    return [SingleFeat(feat, data[feat].nunique() * mult, hash_flag=hash_flag, dtype='float32') for feat in sparse_features]
+def sparse_feat_list_gen(data, sparse_features, emb_rule=True, hash_flag=False):
+    if emb_rule:
+        return [SingleFeat(feat, emb_sz_rule(data[feat].nunique()), hash_flag=hash_flag, dtype='float32') for feat in sparse_features]
+    else:
+        return [SingleFeat(feat, data[feat].nunique(), hash_flag=hash_flag, dtype='float32') for feat in sparse_features]
 
 
 def dense_feat_list_gen(data, dense_features, hash_flag=False):
