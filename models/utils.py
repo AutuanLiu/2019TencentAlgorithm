@@ -4,6 +4,22 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from deepctr.utils import SingleFeat, VarLenFeat
 
+# 可以使用的模型集合以及发行年份
+Models = {
+    "FGCNN": 201904,
+    "AutoInt": 201810,
+    "DIEN": 201809,
+    "xDeepFM": 201803,
+    "NFM": 201708,
+    "AFM": 201708,
+    "DCN": 201708,
+    "DIN": 201706,
+    "DeepFM": 201703,
+    "PNN": 201611,
+    "FNN": 201601,
+    "CCPM": 201510,
+}
+
 
 def relu(x: np.ndarray) -> np.ndarray:
     out = x if isinstance(x, np.ndarray) else np.array(x)

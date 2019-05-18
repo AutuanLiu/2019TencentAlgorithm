@@ -22,6 +22,7 @@
   - [6. 目录树](#6-%E7%9B%AE%E5%BD%95%E6%A0%91)
   - [7. 依赖](#7-%E4%BE%9D%E8%B5%96)
   - [8. 软链接的创建方式](#8-%E8%BD%AF%E9%93%BE%E6%8E%A5%E7%9A%84%E5%88%9B%E5%BB%BA%E6%96%B9%E5%BC%8F)
+  - [](#)
 
 ## 1. 任务栏
 
@@ -272,4 +273,10 @@ tree .
 
 ```bash
 $ ln -s src dest
+```
+
+## 9. sha1sum
+
+```bash
+$ sha1sum submission.csv 
 ```
