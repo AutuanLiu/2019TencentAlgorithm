@@ -18,12 +18,15 @@ test_data = pd.read_csv(f'{path}test_set_final1.csv', low_memory=False, encoding
 
 # 变量类型
 sparse_features = [
-    'ad_id', 'ad_type_id', 'ad_account_id', 'item_id', 'item_type', 'is_all_field', 'has_product_id', 'consuptionAbility', 'crt_dateYear', 'crt_dateMonth',
-    'crt_dateWeek', 'crt_dateDay', 'crt_dateDayofweek', 'crt_dateDayofyear', 'crt_dateIs_month_end', 'crt_dateIs_month_start', 'crt_dateIs_quarter_end',
+    'ad_id', 'ad_type_id', 'ad_account_id', 'item_id', 'item_type', 'is_all_field', 'has_product_id',
+    'consuptionAbility', 'crt_dateYear', 'crt_dateMonth', 'crt_dateWeek', 'crt_dateDay', 'crt_dateDayofweek',
+    'crt_dateDayofyear', 'crt_dateIs_month_end', 'crt_dateIs_month_start', 'crt_dateIs_quarter_end',
     'crt_dateIs_quarter_start', 'crt_dateIs_year_end', 'crt_dateIs_year_start', 'crt_dateHour', 'crt_dateElapsed'
 ]
 dense_features = ['price']
-multi_value_features = ['size', 'time', 'age', 'area', 'device', 'behavior', 'connectionType', 'gender', 'education', 'status', 'work']
+multi_value_features = [
+    'size', 'time', 'age', 'area', 'device', 'behavior', 'connectionType', 'gender', 'education', 'status', 'work'
+]
 multi_value_features_cnt = [5, 7, 1000, 2000, 8, 500, 7, 5, 10, 17, 8]
 multi_value_features_emb_sz = [10, 94, 76, 171, 5, 357, 5, 4, 6, 8, 5]
 
@@ -44,7 +47,12 @@ dense_feat_list = dense_feat_list_gen(test_data, dense_features, hash_flag=cfg["
 padding_func = partial(pad_sequences, **padding_cfg)
 padding_feat_list = []
 for feature, emb_sz, cnt in zip(multi_value_features, multi_value_features_emb_sz, multi_value_features_cnt):
-    _, padding = single_multi_value_feature_encoding(test_data, feature, padding_func, sequence_dim=emb_sz, max_feature_length=cnt, **cfg)
+    _, padding = single_multi_value_feature_encoding(test_data,
+                                                     feature,
+                                                     padding_func,
+                                                     sequence_dim=emb_sz,
+                                                     max_feature_length=cnt,
+                                                     **cfg)
     padding_feat_list.append(padding)
 
 # 模型输入

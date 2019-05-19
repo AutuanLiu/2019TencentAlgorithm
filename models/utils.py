@@ -27,8 +27,8 @@ def relu(x: np.ndarray) -> np.ndarray:
 
 
 def scale(x: np.ndarray) -> np.ndarray:
-    out = relu(x)
-    out = np.exp(out) - 1
+    out = np.exp(x) - 1
+    out = relu(out)
     out = np.round(out, decimals=4)
     return out
 
@@ -58,15 +58,15 @@ def dense_feature_scale(data, dense_features_names, scaler=None):
     return data, scaler
 
 
-def single_multi_value_feature_encoding(data, feature, padding_func, sequence_dim=None, max_feature_length=None, **kwargs):
+def single_multi_value_feature_encoding(data, feature, padding_func, seq_dim=None, max_len=None, **kwargs):
     """单个特征操作
     
     Arguments:
         data (pd.DataFrame): -- 原始数据
         feature (str): -- 多值特征名
         padding_func (function) -- padding 函数
-        max_feature_length (int) -- 自定义长度
-        sequence_dim (int) -- 序列特征维度
+        max_len (int) -- 自定义特征长度
+        seq_dim (int) -- 序列特征维度
     
     Returns:
         sequence_feature  -- padding 后的特征
@@ -85,10 +85,10 @@ def single_multi_value_feature_encoding(data, feature, padding_func, sequence_di
         return list(map(lambda x: key2index[x], key_ans))
 
     feature_list = list(map(split, data[feature].values))    # 分割
-    max_length = max_feature_length if max_feature_length else max(list(map(len, feature_list)))
+    max_length = max_len if max_len else max(list(map(len, feature_list)))
     # padding 对齐
     padding_feature = padding_func(feature_list, max_length)
-    dim = sequence_dim if sequence_dim else emb_sz_rule(len(key2index) + 1)
+    dim = seq_dim if seq_dim else emb_sz_rule(len(key2index) + 1)
     print(f'len_unique： {len(key2index) + 1: 8d}, emb_sz： {dim: 8d}, max_len： {max_length: 8d}')
     del key2index
     sequence_feature = VarLenFeat(feature, dim, max_length, dtype="float32", **kwargs)
@@ -96,10 +96,8 @@ def single_multi_value_feature_encoding(data, feature, padding_func, sequence_di
 
 
 def sparse_feat_list_gen(data, sparse_features, emb_rule=True, hash_flag=False):
-    if emb_rule:
-        return [SingleFeat(feat, emb_sz_rule(data[feat].nunique()), hash_flag=hash_flag, dtype='float32') for feat in sparse_features]
-    else:
-        return [SingleFeat(feat, data[feat].nunique(), hash_flag=hash_flag, dtype='float32') for feat in sparse_features]
+    dim = {feat: emb_sz_rule(data[feat].nunique()) if emb_rule else data[feat].nunique() for feat in sparse_features}
+    return [SingleFeat(feat, dim[feat], hash_flag=hash_flag, dtype='float32') for feat in sparse_features]
 
 
 def dense_feat_list_gen(data, dense_features, hash_flag=False):

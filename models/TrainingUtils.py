@@ -61,19 +61,23 @@ def sequence_feature_acquire(max_len_list, multi_value_feature_name, hashing):
     output = []
     if hashing:
         for max_len, feature in zip(max_len_list, multi_value_feature_name):
-            sequence_feature = [VarLenFeat(feature, 100, max_len, 'mean', hash_flag=True,
-                                           dtype="string")]    # Notice : value 0 is for padding for sequence input feature
+            sequence_feature = [VarLenFeat(feature, 100, max_len, 'mean', hash_flag=True, dtype="string")
+                                ]    # Notice : value 0 is for padding for sequence input feature
             output.append(sequence_feature)
     else:
         for max_len, feature in zip(max_len_list, multi_value_feature_name):
-            sequence_feature = [VarLenFeat(feature, len(key2index) + 1, max_len, 'mean')]    # Notice : value 0 is for padding for sequence input feature
+            sequence_feature = [VarLenFeat(feature,
+                                           len(key2index) + 1, max_len,
+                                           'mean')]    # Notice : value 0 is for padding for sequence input feature
             output.append(sequence_feature)
     return output
 
 
 def sparse_feat_list_gen(data, sparse_features, hashing):
     if hashing:
-        sparse_feat_list = [SingleFeat(feat, data[feat].nunique() * 5, hash_flag=True, dtype='string') for feat in sparse_features]
+        sparse_feat_list = [
+            SingleFeat(feat, data[feat].nunique() * 5, hash_flag=True, dtype='string') for feat in sparse_features
+        ]
     else:
         sparse_feat_list = [SingleFeat(feat, data[feat].nunique()) for feat in sparse_features]
     return sparse_feat_list

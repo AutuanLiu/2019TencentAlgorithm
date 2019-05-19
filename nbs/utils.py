@@ -3,6 +3,7 @@ import time, os, re
 from functools import reduce
 import numpy as np
 
+
 def join_df(left, right, left_on, right_on=None, suffix='_y'):
     if right_on is None: right_on = left_on
     return left.merge(right, how='left', left_on=left_on, right_on=right_on, suffixes=("", suffix))
@@ -40,8 +41,8 @@ def add_datepart(df, fldname, drop=True, time=False):
     # targ_pre = re.sub('[Dd]ate$', '', fldname)
     targ_pre = 'crt_date'
     attr = [
-        'Year', 'Month', 'Week', 'Day', 'Dayofweek', 'Dayofyear', 'Is_month_end', 'Is_month_start', 'Is_quarter_end', 'Is_quarter_start', 'Is_year_end',
-        'Is_year_start'
+        'Year', 'Month', 'Week', 'Day', 'Dayofweek', 'Dayofyear', 'Is_month_end', 'Is_month_start', 'Is_quarter_end',
+        'Is_quarter_start', 'Is_year_end', 'Is_year_start'
     ]
     if time: attr = attr + ['Hour', 'Minute', 'Second']
     for n in attr:
@@ -52,8 +53,8 @@ def add_datepart(df, fldname, drop=True, time=False):
 
 def invalid_date(df, field):
     ret, l = [], len(df)
-    df[field] = pd.to_datetime(df[field], unit='s')  # 转为日期
-    df.reset_index(drop=True, inplace=True)  # 为了正常访问，重建索引
+    df[field] = pd.to_datetime(df[field], unit='s')    # 转为日期
+    df.reset_index(drop=True, inplace=True)    # 为了正常访问，重建索引
     for i in range(l):
         if not isVaildDate(str(df.loc[i, field])):
             ret.append(i)
@@ -61,23 +62,24 @@ def invalid_date(df, field):
     new_df = df.drop(ret, axis=0)
     return new_df
 
+
 def purge_pat_files(dir, pattern):
     for f in os.listdir(dir):
         if re.search(pattern, f):
             os.remove(os.path.join(dir, f))
 
-            
+
 def or_func(df_row):
-    return reduce(lambda x, y: x|y, map(int, df_row.split(',')))
+    return reduce(lambda x, y: x | y, map(int, df_row.split(',')))
 
 
 def split_vals(df_row, cols=None, field=None):
     features = df_row[field].split('|')
     if features[0] == 'all':
-        df_row[cols] = -9 # 表示全部无限制
+        df_row[cols] = -9    # 表示全部无限制
     elif len(features) == 1 and features[0] == '-999' or features[0] == '-999.0':
-        df_row[cols] = -999 # 表示缺失
-    elif len(features) >= 1: 
+        df_row[cols] = -999    # 表示缺失
+    elif len(features) >= 1:
         for fs in features:
             val = fs.split(':')
             tmp = 'device' if val[0] == 'os' else val[0]

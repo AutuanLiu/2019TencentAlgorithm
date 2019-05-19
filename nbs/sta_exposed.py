@@ -22,9 +22,10 @@ def save_exposed_files(dir, pattern):
             pdf = pdf.groupby(by=['曝光广告id']).count()
             save_csv(pdf, date)
 
+
 if __name__ == '__main__':
     pattern = r'^([^_]+)_log_exposed.csv$'
     pattern1 = r'^([^_]+)_log.csv$'
-    purge_pat_files('../data', pattern)  # 先删除曾经创建的同名文件
+    purge_pat_files('../data', pattern)    # 先删除曾经创建的同名文件
     save_exposed_files('../data', pattern1)
     print('done!')

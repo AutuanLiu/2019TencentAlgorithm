@@ -33,7 +33,17 @@ class AdamW(Optimizer):
         - [Fixing Weight Decay Regularization in Adam](https://arxiv.org/abs/1711.05101)
     """
 
-    def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., weight_decay=0.025, batch_size=1, samples_per_epoch=1, epochs=1, **kwargs):
+    def __init__(self,
+                 lr=0.001,
+                 beta_1=0.9,
+                 beta_2=0.999,
+                 epsilon=None,
+                 decay=0.,
+                 weight_decay=0.025,
+                 batch_size=1,
+                 samples_per_epoch=1,
+                 epochs=1,
+                 **kwargs):
         super(AdamW, self).__init__(**kwargs)
         with K.name_scope(self.__class__.__name__):
             self.iterations = K.variable(0, dtype='int64', name='iterations')
