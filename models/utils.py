@@ -27,8 +27,8 @@ def relu(x: np.ndarray) -> np.ndarray:
 
 
 def scale(x: np.ndarray) -> np.ndarray:
-    out = np.exp(x) - 1
-    out = relu(out)
+    out = relu(x)
+    out = np.exp(out) - 1
     out = np.round(out, decimals=4)
     return out
 
