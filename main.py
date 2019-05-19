@@ -43,32 +43,32 @@ padding_cfg = {"padding": 'post', "dtype": 'float32', "truncating": "post", "val
 ## !! TODO 关于模型的设置 !!
 # DeepFM, AFM, AutoInt, DCN, FNN, NFM, PNN, CCPM, FGCNN
 # 1. xDeepFM 模型
-# model_name = 'xDeepFM'
-# model_settings = {
-#     "embedding_size": 8,
-#     "dnn_hidden_units": (256, 256),
-#     "cin_layer_size": (128, 128),
-#     "l2_reg_linear": 1e-05,
-#     "l2_reg_embedding": 1e-05,
-#     "l2_reg_dnn": 0,
-#     "l2_reg_cin": 0,
-#     "dnn_use_bn": True,
-#     "dnn_dropout": 0.0
-# }
-
-# 2. FGCNN 模型
-model_name = 'FGCNN'
+model_name = 'xDeepFM'
 model_settings = {
     "embedding_size": 8,
-    "conv_kernel_width": (7, 7, 7, 7),
-    "conv_filters": (14, 16, 18, 20),
-    "new_maps": (3, 3, 3, 3),
-    "pooling_width": (2, 2, 2, 2),
-    "dnn_hidden_units": (128, ),
-    "l2_reg_embedding": 1e-5,
+    "dnn_hidden_units": (256, 256),
+    "cin_layer_size": (128, 128),
+    "l2_reg_linear": 1e-05,
+    "l2_reg_embedding": 1e-05,
     "l2_reg_dnn": 0,
-    "dnn_dropout": 0
+    "l2_reg_cin": 0,
+    "dnn_use_bn": True,
+    "dnn_dropout": 0.0
 }
+
+# 2. FGCNN 模型
+# model_name = 'FGCNN'
+# model_settings = {
+#     "embedding_size": 8,
+#     "conv_kernel_width": (7, 7, 7, 7),
+#     "conv_filters": (14, 16, 18, 20),
+#     "new_maps": (3, 3, 3, 3),
+#     "pooling_width": (2, 2, 2, 2),
+#     "dnn_hidden_units": (128, ),
+#     "l2_reg_embedding": 1e-5,
+#     "l2_reg_dnn": 0,
+#     "dnn_dropout": 0
+# }
 
 # 3. DIEN 模型
 # model_name = 'DIEN'
@@ -118,7 +118,7 @@ plot_model(model, show_shapes=True, to_file=f'./imgs/{model_name}.png')
 
 ## TODO 优化器与策略配置
 adamw = AdamW(lr=5e-4, weight_decay=0.025)
-adabound = AdaBound(lr=3e-3, final_lr=1e-1, weight_decay=0.001, amsbound=False)
+adabound = AdaBound(lr=5e-6, final_lr=3e-3, weight_decay=0.001, amsbound=False)
 
 # clr = CyclicLR(scale_fn=lambda x: 1 / (5**(x * 0.0001)), scale_mode='iterations')
 clr = CyclicLR(mode='triangular')
@@ -162,7 +162,7 @@ dense_feat_list = dense_feat_list_gen(test_data, dense_features, hash_flag=cfg["
 padding_func = partial(pad_sequences, **padding_cfg)
 padding_feat_list = []
 for feature, emb_sz, cnt in zip(multi_value_features, multi_value_features_emb_sz, multi_value_features_cnt):
-    (*ret, ) = single_multi_value_feature_encoding(test_data, feature, padding_func, seq_dim=emb_sz, max_len=cnt, **cfg)
+    *ret, = single_multi_value_feature_encoding(test_data, feature, padding_func, seq_dim=emb_sz, max_len=cnt, **cfg)
     padding_feat_list.append(ret[1])
 
 # 模型输入
@@ -172,7 +172,7 @@ model_input = sparse_input + dense_input + padding_feat_list
 
 # 预测
 preds = model.predict(model_input, batch_size=BATCH, verbose=1, workers=CORES)
-print(preds)
+print(preds.shape)
 # 提交文件生成
 submission = pd.DataFrame(columns=['sample_id', 'preds'])
 submission['sample_id'] = test_data['sample_id']
