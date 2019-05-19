@@ -36,7 +36,7 @@ multi_value_features_cnt = [5, 7, 1000, 2000, 8, 500, 7, 5, 10, 17, 8]
 target = train_data['target']
 
 # settings
-BATCH, EPOCH, CORES = 512, 3, 8
+BATCH, EPOCH, CORES = 512, 300, 8
 cfg = {"hash_flag": True, "combiner": 'mean'}
 padding_cfg = {"padding": 'post', "dtype": 'float32', "truncating": "post", "value": 0.}
 
@@ -118,7 +118,7 @@ plot_model(model, show_shapes=True, to_file=f'./imgs/{model_name}.png')
 
 ## TODO 优化器与策略配置
 adamw = AdamW(lr=5e-4, weight_decay=0.025)
-adabound = AdaBound(lr=5e-6, final_lr=1e-3, weight_decay=0.001, amsbound=False)
+adabound = AdaBound(lr=3e-3, final_lr=1e-1, weight_decay=0.001, amsbound=False)
 
 # clr = CyclicLR(scale_fn=lambda x: 1 / (5**(x * 0.0001)), scale_mode='iterations')
 clr = CyclicLR(mode='triangular')
