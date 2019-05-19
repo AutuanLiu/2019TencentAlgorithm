@@ -64,7 +64,14 @@ class CyclicLR(Callback):
             iterations since start of cycle). Default is 'cycle'.
     """
 
-    def __init__(self, base_lr=0.001, max_lr=0.006, step_size=2000., mode='triangular', gamma=1., scale_fn=None, scale_mode='cycle'):
+    def __init__(self,
+                 base_lr=0.001,
+                 max_lr=0.006,
+                 step_size=2000.,
+                 mode='triangular',
+                 gamma=1.,
+                 scale_fn=None,
+                 scale_mode='cycle'):
         super(CyclicLR, self).__init__()
 
         self.base_lr = base_lr
@@ -109,7 +116,8 @@ class CyclicLR(Callback):
         if self.scale_mode == 'cycle':
             return self.base_lr + (self.max_lr - self.base_lr) * np.maximum(0, (1 - x)) * self.scale_fn(cycle)
         else:
-            return self.base_lr + (self.max_lr - self.base_lr) * np.maximum(0, (1 - x)) * self.scale_fn(self.clr_iterations)
+            return self.base_lr + (self.max_lr - self.base_lr) * np.maximum(0, (1 - x)) * self.scale_fn(
+                self.clr_iterations)
 
     def on_train_begin(self, logs={}):
         logs = logs or {}

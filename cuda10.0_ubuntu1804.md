@@ -14,6 +14,7 @@ sudo apt install ./nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb
 sudo apt-get update
 
 # Install NVIDIA driver
+# 如果已安装可以忽略  可以安装多个 cuda 版本 只要驱动兼容
 sudo apt-get install --no-install-recommends nvidia-driver-410
 # Reboot. Check that GPUs are visible using the command: nvidia-smi
 

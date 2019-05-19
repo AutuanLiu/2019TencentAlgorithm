@@ -29,7 +29,17 @@ class AdaBound(Optimizer):
           (https://openreview.net/forum?id=ryQu7f-RZ)
     """
 
-    def __init__(self, lr=0.001, final_lr=0.1, beta_1=0.9, beta_2=0.999, gamma=1e-3, epsilon=None, decay=0., amsbound=False, weight_decay=0.0, **kwargs):
+    def __init__(self,
+                 lr=0.001,
+                 final_lr=0.1,
+                 beta_1=0.9,
+                 beta_2=0.999,
+                 gamma=1e-3,
+                 epsilon=None,
+                 decay=0.,
+                 amsbound=False,
+                 weight_decay=0.0,
+                 **kwargs):
         super(AdaBound, self).__init__(**kwargs)
 
         if not 0. <= gamma <= 1.:
