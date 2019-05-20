@@ -22,23 +22,23 @@ test_data = pd.read_csv(f'{path}test_set_B.csv', low_memory=False, encoding='utf
 # 变量类型
 backup_sparse_features = ['has_price']
 sparse_features = [
-    'ad_id', 'ad_type_id', 'ad_account_id', 'item_id', 'item_type', 'is_all_field', 'has_product_id',
+    'ad_id', 'ad_type_id', 'ad_account_id', 'item_id', 'item_type', 'size', 'is_all_field', 'has_product_id',
     'consuptionAbility', 'crt_dateYear', 'crt_dateMonth', 'crt_dateWeek', 'crt_dateDay', 'crt_dateDayofweek',
     'crt_dateDayofyear', 'crt_dateIs_month_end', 'crt_dateIs_month_start', 'crt_dateIs_quarter_end',
     'crt_dateIs_quarter_start', 'crt_dateIs_year_end', 'crt_dateIs_year_start', 'crt_dateHour', 'crt_dateElapsed'
 ]
 dense_features = ['price']
 multi_value_features = [
-    'size', 'time', 'age', 'area', 'device', 'behavior', 'connectionType', 'gender', 'education', 'status', 'work'
+    'time', 'age', 'area', 'device', 'behavior', 'connectionType', 'gender', 'education', 'status', 'work'
 ]
-multi_value_features_cnt = [2, 7, 1000, 1800, 8, 500, 7, 5, 7, 8, 5]
-multi_value_features_emb_sz = [10, 93, 76, 171, 5, 348, 5, 4, 6, 8, 5]
+multi_value_features_cnt = [7, 995, 1576, 6, 485, 7, 3, 7, 8, 5]
+multi_value_features_emb_sz = [93, 76, 171, 5, 348, 5, 4, 6, 8, 5]
 
 # 预测目标
 target = train_data['target']
 
 # settings
-BATCH, EPOCH, CORES = 512, 300, 8
+BATCH, EPOCH, CORES = 512, 100, 8
 cfg = {"hash_flag": True, "combiner": 'mean'}
 padding_cfg = {"padding": 'post', "dtype": 'float32', "truncating": "post", "value": 0.}
 
@@ -51,21 +51,21 @@ model_settings = {
     "dnn_hidden_units": (256, 256),
     "cin_layer_size": (128, 128),
     "l2_reg_linear": 1e-05,
-    "l2_reg_embedding": 1e-03,
+    "l2_reg_embedding": 1e-05,
     "l2_reg_dnn": 0,
     "l2_reg_cin": 0,
     "dnn_use_bn": True,
-    "dnn_dropout": 0.5
+    "dnn_dropout": 0.
 }
 
 # 2. FGCNN 模型
 # model_name = 'FGCNN'
 # model_settings = {
 #     "embedding_size": 8,
-#     "conv_kernel_width": (3, 3),
-#     "conv_filters": (5, 5),
-#     "new_maps": (3, 3),
-#     "pooling_width": (2, 2),
+#     "conv_kernel_width": (7, 7, 7),
+#     "conv_filters": (5, 5, 5),
+#     "new_maps": (3, 3, 3),
+#     "pooling_width": (2, 2, 2),
 #     "dnn_hidden_units": (256, 256),
 #     "l2_reg_embedding": 1e-5,
 #     "l2_reg_dnn": 0,
@@ -122,12 +122,12 @@ model = getattr(ctr, model_name)(feature_dim_dict, task='regression', **model_se
 plot_model(model, show_shapes=True, to_file=f'./imgs/{model_name}.png')
 
 ## TODO 优化器与策略配置
-adamw = AdamW(lr=5e-4, weight_decay=0.025)
-adabound = AdaBound(lr=5e-6, final_lr=1e-3, weight_decay=0.001, amsbound=True)
-
-# clr = CyclicLR(scale_fn=lambda x: 1 / (5**(x * 0.0001)), scale_mode='iterations')
-clr = CyclicLR(mode='triangular')
-early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+adamw = AdamW(lr=3e-3, weight_decay=0.025)
+adabound = AdaBound(lr=5e-6, final_lr=1e-3, weight_decay=0.0, amsbound=False)
+func = lambda x: 1 / (5**(x * 0.0001))
+clr = CyclicLR(base_lr=5e-4, max_lr=1e-3, step_size=200, scale_fn=func, scale_mode='iterations')
+# clr = CyclicLR(mode='triangular')
+early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
 ## TODO 优化器与策略配置结束
 
 ## ! TODO 验证集 !
@@ -157,7 +157,7 @@ valid = valid_input, valid_target
 ## ! END TODO 验证集 !
 
 # 模型拟合
-model.compile(adabound, huber_loss, metrics=['mse', "mae"])
+model.compile(adabound, huber_loss, metrics=["mae"])
 history = model.fit(model_input,
                     target,
                     batch_size=BATCH,
@@ -167,8 +167,8 @@ history = model.fit(model_input,
                     callbacks=[early_stopping])
 
 # 保存模型权重
-model.save(f'./saved/{model_name}.h5')
-model.save_weights(f'./saved/{model_name}_weights.h5')
+# model.save(f'./saved/{model_name}.h5')
+# model.save_weights(f'./saved/{model_name}_weights.h5')
 
 # 可视化
 # plt.plot(clr.history['iterations'], clr.history['lr'])
