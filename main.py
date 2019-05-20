@@ -123,11 +123,11 @@ plot_model(model, show_shapes=True, to_file=f'./imgs/{model_name}.png')
 
 ## TODO 优化器与策略配置
 adamw = AdamW(lr=5e-4, weight_decay=0.025)
-adabound = AdaBound(lr=5e-6, final_lr=1e-3, weight_decay=0.001, amsbound=False)
+adabound = AdaBound(lr=5e-6, final_lr=1e-3, weight_decay=0.001, amsbound=True)
 
 # clr = CyclicLR(scale_fn=lambda x: 1 / (5**(x * 0.0001)), scale_mode='iterations')
 clr = CyclicLR(mode='triangular')
-early_stopping = EarlyStopping(monitor='val_loss', patience=10)
+early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
 ## TODO 优化器与策略配置结束
 
 ## ! TODO 验证集 !
