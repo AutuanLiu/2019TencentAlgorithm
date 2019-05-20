@@ -66,7 +66,7 @@ def single_multi_value_feature_encoding(data, feature, padding_func, seq_dim=Non
         feature (str): -- 多值特征名
         padding_func (function) -- padding 函数
         max_len (int) -- 自定义特征长度
-        seq_dim (int) -- 序列特征维度
+        seq_dim (int) -- 序列维度
     
     Returns:
         sequence_feature  -- padding 后的特征
