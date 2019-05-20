@@ -51,11 +51,11 @@ model_settings = {
     "dnn_hidden_units": (256, 256),
     "cin_layer_size": (128, 128),
     "l2_reg_linear": 1e-05,
-    "l2_reg_embedding": 1e-05,
+    "l2_reg_embedding": 1e-03,
     "l2_reg_dnn": 0,
     "l2_reg_cin": 0,
     "dnn_use_bn": True,
-    "dnn_dropout": 0.0
+    "dnn_dropout": 0.5
 }
 
 # 2. FGCNN 模型
