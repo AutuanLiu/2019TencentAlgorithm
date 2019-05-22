@@ -58,6 +58,12 @@ def dense_feature_scale(data, dense_features_names, scaler=None):
     return data, scaler
 
 
+def dense_feature_scale1(data, dense_features_names):
+    """连续变量放缩"""
+
+    return StandardScaler().fit(data[dense_features_names])
+
+
 def single_multi_value_feature_encoding(data, feature, padding_func, seq_dim=None, max_len=None, **kwargs):
     """单个特征操作
     
