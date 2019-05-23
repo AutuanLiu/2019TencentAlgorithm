@@ -22,18 +22,18 @@ valid_data = pd.read_csv(f'{path}valid_set_final.csv', low_memory=False, encodin
 test_data = pd.read_csv(f'{path}test_set_B.csv', low_memory=False, encoding='utf-8')
 
 # 变量类型
-backup_sparse_features = ['has_price', 'crt_dateDayofweek', 'crt_dateDayofyear']
+backup_sparse_features = ['has_price']
 sparse_features = [
-    'ad_id', 'ad_type_id', 'ad_account_id', 'item_id', 'item_type', 'size', 'is_all_field', 'has_product_id',
-    'consuptionAbility', 'crt_dateYear', 'crt_dateMonth', 'crt_dateWeek', 'crt_dateDay', 'crt_dateIs_month_end',
+    'ad_id', 'ad_type_id', 'ad_account_id', 'item_id', 'item_type', 'has_price', 'is_all_field', 'has_product_id',
+    'size', 'consuptionAbility', 'crt_dateYear', 'crt_dateMonth', 'crt_dateWeek', 'crt_dateDay', 'crt_dateIs_month_end',
     'crt_dateIs_month_start', 'crt_dateIs_quarter_end', 'crt_dateIs_quarter_start', 'crt_dateIs_year_end',
-    'crt_dateIs_year_start', 'crt_dateHour', 'crt_dateElapsed'
+    'crt_dateIs_year_start', 'crt_dateHour', 'crt_dateElapsed', 'crt_dateDayofweek', 'crt_dateDayofyear'
 ]
 dense_features = ['price']
 multi_value_features = [
     'time', 'age', 'area', 'device', 'behavior', 'connectionType', 'gender', 'education', 'status', 'work'
 ]
-multi_value_features_cnt = [7, 1000, 1600, 6, 500, 7, 3, 7, 8, 5]
+multi_value_features_cnt = [7, 1000, 2000, 8, 500, 7, 5, 10, 17, 8]
 multi_value_features_emb_sz = [93, 76, 171, 5, 348, 5, 4, 6, 8, 5]
 
 # 预测目标
